@@ -40,39 +40,33 @@ dt.fit(X_train, y_train)
 y_pred_train = dt.predict(X_train)
 accuracy_score(y_train, y_pred_train)
 
+# Build Desision Tree scheme
+
 from sklearn.tree import plot_tree
 
-plot_tree(dt, filled=True, rounded=True)
+plt.figure(figsize=(35, 15))
+plot_tree(
+    dt,
+    filled=True,
+    rounded=True,
+    feature_names=list(X_train.columns),
+    class_names=[str(label) for label in dt.classes_],
+    fontsize=10,
+)
 plt.show()
 
-"""2. Теперь найдите долю правильных ответов полученного алгоритма на тестовой выборке (**в процентах**). Ответ округлите до двух знаков после запятой.
-
-    Заметно ли переобучение?
-"""
-
+# Find accuracy_score
 y_pred_dt = dt.predict(X_test)
 accuracy_score(y_test, y_pred_dt)
 
-"""3. Подберите с помощью кросс-валидации оптимальные гиперпараметры алгоритма. Выбирайте из следующих наборов:
-
-
+"""
+Using cross-validation, we will select the optimal hyperparameters of the algorithm.
+Choose from the following sets:
 - `max_depth`: [3, 4, 5, 6, 7, 8, 9, 10, None]
 - `max_features`: ['auto', 'log2', None]
 - `min_samples_leaf`: range(1, 10)
 - `min_samples_split`: range(2, 10)
 - `criterion`: ['gini', 'entropy']
-
-    В этом вам поможет метод `sklearn.model_selection.GridSearchCV`. Подробнее о том, какие параметры и методы в нем используются, и о примерах работы с ним можно прочитать в [документации](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html).
-    
-    1) Создайте решающее дерево - не забудьте поставить `random_state=13`.
-    
-    2) Задайте `param_grid` - сетку (словарь) гиперпараметров и их значений, по которой будет проходить метод.
-    
-    3) Вызовите метод `GridSearchCV` - в качестве параметра `estimator` задайте решающее дерево из первого шага, `param_grid` - сетку из второго. Задайте параметр `cv=5`, чтобы кросс-валидация проходила по 5 фолдам. Также задайте параметр `scoring='accuracy'`, чтобы оценка качества моделей на кросс-валидации проходила с помощью доли правильных ответов. Запустите метод на обучающей выборке с помощью `fit`.
-    
-    4) Выведите лучшие параметры с помощью атрибута `best_params_`.
-    
-    Какое значение глубины дерева получилось оптимальным?
 """
 
 grid_searcher = GridSearchCV(DecisionTreeClassifier(random_state=13),
