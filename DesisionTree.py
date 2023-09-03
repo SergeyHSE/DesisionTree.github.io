@@ -24,7 +24,8 @@ data.head()
 Let's split this sample into training and test parts with respect to 3:1
 """
 
-X_train, X_test, y_train, y_test = train_test_split(data.drop('target', axis=1), data['target'], test_size=0.25, random_state=13)
+X_train, X_test, y_train, y_test = train_test_split(data.drop('target', axis=1),
+                                                    data['target'], test_size=0.25, random_state=13)
 X_train.shape, X_test.shape
 
 """
@@ -80,11 +81,11 @@ grid_searcher = GridSearchCV(DecisionTreeClassifier(random_state=13),
 grid_searcher.fit(X_train, y_train)
 grid_searcher.best_params_
 
-"""4. Какое лучшее усредненное значение доли правильных ответов получилось на кросс-валидации (для оптимальных значений гиперпараметров)? Вам поможет атрибут `best_score_`. Ответ округлите до двух знаков после запятой и дайте в процентах."""
+#We need find what is the best average value of the proportion of correct answers obtained on cross-validation
 
 grid_searcher.best_score_
 
-"""5. Найдите долю правильных ответов решающего дерева с подобранными оптимальными значениями гиперпараметров на обучающей выборке (**в процентах**). Ответ округлите до двух знаков после запятой."""
+#Aply founded parametrs
 
 dt_optimal = DecisionTreeClassifier(criterion='gini', max_depth=9, max_features='log2',
                                     min_samples_leaf=3, min_samples_split=9,
@@ -93,25 +94,36 @@ dt_optimal.fit(X_train, y_train)
 y_pred_train_optimal = dt_optimal.predict(X_train)
 accuracy_score(y_train, y_pred_train_optimal)
 
-plot_tree(dt_optimal, filled=True, rounded=True)
+plt.figure(figsize=(35, 15))
+plot_tree(
+    dt_optimal,
+    filled=True,
+    rounded=True,
+    feature_names=list(X_train.columns),  # Convert to a list
+    class_names=[str(label) for label in dt.classes_],
+    fontsize=10,
+)
 plt.show()
 
-"""6. Найдите долю правильных ответов решающего дерева с подобранными оптимальными значениями гиперпараметров на тестовой выборке (**в процентах**). Ответ округлите до двух знаков после запятой.
-
-    Уменьшилось ли переобучение?
-"""
+# Let's now accuracy score wtith optimal parametrs
 
 y_pred_test_optimal = dt_optimal.predict(X_test)
 accuracy_score(y_test, y_pred_test_optimal)
 
-"""7. Решающее дерево позволяет предсказывать не только классы, но и вероятности классов - с помощью метода `predict_proba`. Посмотрите на вероятности классов полученного решающего дерева и посчитайте значение AUC-ROC. Ответ округлите до двух знаков после запятой."""
+"""
+The decision tree allows you to predict not only classes, but also the probabilities of classes
+using the 'predict_proba' method.
+Let's look at the probabilities of the classes of the resulting decision tree and calculate the AUC-ROC value.
+"""
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 y_pred_proba = dt_optimal.predict_proba(X_test)[:, 1]
 roc_auc_score(y_test, y_pred_proba)
 
-"""8. Какой признак является самым важным по мнению полученного решающего дерева? Чтобы это проверить, вам поможет атрибут `feature_importances_`."""
+"""
+We need find which attribute is the most important in the opinion of the resulting decision tree.
+"""
 
 dt_optimal.feature_importances_
 weights_sorted = sorted(zip(dt_optimal.feature_importances_.ravel(), X_train.columns), reverse=True)
